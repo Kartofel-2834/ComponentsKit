@@ -1,0 +1,22 @@
+:root {
+  --textColor: white;
+  --blur: #909399;
+
+  --primary: #2e958b;
+  --primaryFaded: #2e958b1a;
+
+  --success: #67c23a;
+  --successFaded: #66c0391a;
+
+  --info: #409eff;
+  --infoFaded: #409eff1a;
+
+  --warning: #e6a23c;
+  --warningFaded: #e6a23c1a;
+
+  --danger: #f56c6c;
+  --dangerFaded: #f56c6c1a;
+
+  --default: #909399;
+  --defaultFaded: #9093991a;
+}
