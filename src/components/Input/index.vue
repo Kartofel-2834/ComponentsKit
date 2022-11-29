@@ -2,13 +2,22 @@
   <div
     class="input-component-inner"
     :class="{
-      'with-prepend': !!$slots.prepend,
-      'with-append': !!$slots.append,
+      'with-prepend':
+        (type === 'number' && !withoutIncrementButtons) || !!$slots.prepend,
+      'with-append':
+        (type === 'number' && !withoutIncrementButtons) || !!$slots.append,
     }"
     :style="{ '--theme': `var(--${theme})` }"
   >
-    <div v-if="!!$slots.prepend" class="prepend-part">
-      <slot name="prepend" />
+    <div
+      v-if="(type === 'number' && !withoutIncrementButtons) || !!$slots.prepend"
+      class="prepend-part"
+    >
+      <slot name="prepend">
+        <Button :type="theme" class="increment-button" @click="decrementButton">
+          -
+        </Button>
+      </slot>
     </div>
     <div
       class="input-inner"
@@ -43,8 +52,15 @@
         </span>
       </slot>
     </div>
-    <div v-if="!!$slots.append" class="append-part">
-      <slot name="append" />
+    <div
+      v-if="(type === 'number' && !withoutIncrementButtons) || !!$slots.append"
+      class="append-part"
+    >
+      <slot name="append">
+        <Button :type="theme" class="increment-button" @click="incrementValue">
+          +
+        </Button>
+      </slot>
     </div>
   </div>
 </template>
@@ -52,6 +68,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Icon } from "@iconify/vue";
+import Button from "../Button/index.vue";
 
 export default defineComponent({
   name: "InputComponent",
@@ -67,7 +84,7 @@ export default defineComponent({
     "keyup",
   ],
 
-  components: { Icon },
+  components: { Icon, Button },
 
   props: {
     type: { type: String, default: "text" },
@@ -78,7 +95,9 @@ export default defineComponent({
     passwordShownIcon: { type: String, default: "ic:baseline-remove-red-eye" },
     passwordHidedIcon: { type: String, default: "mdi:eye-off" },
     limit: { type: Number, required: false },
+    step: { type: Number, default: 1 },
     icon: { type: String, required: false },
+    withoutIncrementButtons: { type: Boolean, default: false },
     leftIcon: { type: Boolean, default: false },
     clearable: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
@@ -110,6 +129,14 @@ export default defineComponent({
       if (this.clearable) return this.clearIcon;
 
       return this.icon || "";
+    },
+
+    incrementValue(): void {
+      this.setValue(`${(+this.modelValue || 0) + this.step}`);
+    },
+
+    decrementButton(): void {
+      this.setValue(`${(+this.modelValue || 0) - this.step}`);
     },
 
     setValue(value: string): void {
@@ -154,13 +181,26 @@ export default defineComponent({
     keydownListener(event: KeyboardEvent): void {
       this.pressedButtons.add(event.key);
 
+      const controlPressed = this.pressedButtons.has("Control");
+      const paste = controlPressed && this.pressedButtons.has("v");
+
+      if (
+        this.pressedButtons.has("Backspace") ||
+        event.key.includes("Arrow") ||
+        (controlPressed && !paste)
+      ) {
+        return;
+      }
+
+      if (this.type === "number" && (paste || isNaN(+event.key))) {
+        event.preventDefault();
+      }
+
       if (
         this.limit &&
         !isNaN(this.limit) &&
         this.modelValue?.length &&
-        this.modelValue.length >= this.limit &&
-        !this.pressedButtons.has("Backspace") &&
-        !(this.pressedButtons.has("Control") && !this.pressedButtons.has("v"))
+        this.modelValue.length >= this.limit
       ) {
         event.preventDefault();
         return;
@@ -221,8 +261,14 @@ export default defineComponent({
   align-items: center;
   cursor: default;
   height: -webkit-fill-available;
-  border: solid 1px var(--blur);
   overflow: hidden;
+}
+
+.input-component-inner .prepend-part .increment-button,
+.input-component-inner .append-part .increment-button {
+  height: -webkit-fill-available;
+  padding: 0.5em 1em;
+  transform: scale(1.1);
 }
 
 .input-component-inner .prepend-part {

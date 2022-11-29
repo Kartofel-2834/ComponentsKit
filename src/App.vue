@@ -67,6 +67,16 @@
         <Button type="success" icon="material-symbols:search" rounded faded />
       </template>
     </Input>
+
+    <br />
+
+    <Input
+      v-model="kamal"
+      type="number"
+      theme="info"
+      icon="mdi:number-5-circle"
+      :step="2"
+    />
   </div>
 </template>
 
