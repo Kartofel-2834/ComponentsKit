@@ -1,17 +1,17 @@
 <template>
   <div
-    class="input-component-inner"
+    class="input-component"
     :class="{
-      'with-prepend':
-        (type === 'number' && !withoutIncrementButtons) || !!$slots.prepend,
-      'with-append':
-        (type === 'number' && !withoutIncrementButtons) || !!$slots.append,
+      'input-component_with-prepend':
+        (isNumberType && !withoutIncrementButtons) || !!$slots.prepend,
+      'input-component_with-append':
+        (isNumberType && !withoutIncrementButtons) || !!$slots.append,
     }"
     :style="{ '--theme': `var(--${theme})` }"
   >
     <div
-      v-if="(type === 'number' && !withoutIncrementButtons) || !!$slots.prepend"
-      class="prepend-part"
+      v-if="(isNumberType && !withoutIncrementButtons) || !!$slots.prepend"
+      class="input-component__prepend"
     >
       <slot name="prepend">
         <Button :type="theme" class="increment-button" @click="decrementButton">
@@ -20,14 +20,16 @@
       </slot>
     </div>
     <div
-      class="input-inner"
+      class="input-component__input-inner"
       :class="{
-        disabled,
-        focus,
-        clearable,
-        empty: modelValue?.length === 0,
-        reversed: leftIcon,
-        password: type === 'password',
+        'input-component__input-inner_disabled': disabled,
+        'input-component__input-inner_focused': focus && !disabled,
+        'input-component__input-inner_clearable':
+          clearable && !disabled && !isPasswordType,
+        'input-component__input-inner_empty': modelValue?.length === 0,
+        'input-component__input-inner_reversed':
+          leftIcon && !clearable && !isPasswordType,
+        'input-component__input-inner_type_password': isPasswordType,
       }"
     >
       <input
@@ -35,15 +37,18 @@
         :placeholder="placeholder"
         :disabled="disabled"
         :type="passwordMode ? 'password' : 'text'"
+        class="input-component__input-inner__input"
         @input="inputListener"
         @focus="focusListener"
         @blur="blurListener"
         @keydown="keydownListener"
         @keyup="keyupListener"
       />
+      <slot name="content"></slot>
       <slot name="icon">
         <Icon
-          v-if="type === 'password' || clearable || (icon && icon.length)"
+          v-if="isPasswordType || clearable || (icon && icon.length)"
+          class="input-component__input-inner__icon"
           :icon="getCurrentIcon()"
           @click="iconClickListener"
         />
@@ -53,8 +58,8 @@
       </slot>
     </div>
     <div
-      v-if="(type === 'number' && !withoutIncrementButtons) || !!$slots.append"
-      class="append-part"
+      v-if="(isNumberType && !withoutIncrementButtons) || !!$slots.append"
+      class="input-component__append"
     >
       <slot name="append">
         <Button :type="theme" class="increment-button" @click="incrementValue">
@@ -108,19 +113,24 @@ export default defineComponent({
     return {
       focus: false,
       passwordMode: false,
+      isPasswordType: false,
+      isNumberType: false,
       pressedButtons: new Set(),
     };
   },
 
   watch: {
     type(newType: string): void {
-      this.passwordMode = newType === "password";
+      console.log(newType);
+      this.isPasswordType = newType === "password";
+      this.passwordMode = this.isPasswordType;
+      this.isNumberType = newType === "number";
     },
   },
 
   methods: {
     getCurrentIcon(): string {
-      if (this.type === "password") {
+      if (this.isPasswordType) {
         return this.passwordMode
           ? this.passwordHidedIcon
           : this.passwordShownIcon;
@@ -158,7 +168,7 @@ export default defineComponent({
     iconClickListener(event: Event): void {
       if (this.disabled) return;
 
-      if (this.type === "password") {
+      if (this.isPasswordType) {
         this.passwordMode = !this.passwordMode;
       } else if (this.clearable) {
         this.setValue("");
@@ -192,7 +202,7 @@ export default defineComponent({
         return;
       }
 
-      if (this.type === "number" && (paste || isNaN(+event.key))) {
+      if (this.isNumberType && (paste || isNaN(+event.key))) {
         event.preventDefault();
       }
 
@@ -218,44 +228,46 @@ export default defineComponent({
 </script>
 
 <style>
-.input-component-inner {
+.input-component {
   display: flex;
   width: 100%;
 }
 
-.input-component-inner.with-prepend.with-append {
+.input-component_with-prepend.input-component_with-append {
   display: grid;
   grid-template-columns: min-content auto min-content;
   border-radius: 0;
 }
 
-.input-component-inner.with-prepend {
+.input-component_with-prepend {
   display: grid;
   grid-template-columns: min-content auto;
   border-radius: 0 4px 4px 0;
 }
 
-.input-component-inner.with-append {
+.input-component_with-append {
   display: grid;
   grid-template-columns: auto min-content;
   border-radius: 4px 0 0 4px;
 }
 
-.input-component-inner.with-prepend.with-append .input-inner {
+.input-component_with-prepend.input-component_with-append
+  .input-component__input-inner {
   border-radius: 0;
 }
 
-.input-component-inner.with-prepend .input-inner {
+.input-component_with-prepend .input-component__input-inner {
   border-radius: 0 4px 4px 0;
 }
 
-.input-component-inner.with-append .input-inner {
+.input-component_with-append .input-component__input-inner {
   border-radius: 4px 0 0 4px;
 }
 
 /* PREPEND-APPEND-PARTS */
-.input-component-inner .prepend-part,
-.input-component-inner .append-part {
+
+.input-component__prepend,
+.input-component__append {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -264,31 +276,30 @@ export default defineComponent({
   overflow: hidden;
 }
 
-.input-component-inner .prepend-part .increment-button,
-.input-component-inner .append-part .increment-button {
+.input-component__prepend {
+  border-radius: 4px 0 0 4px;
+  border-right: 0;
+}
+
+.input-component__append {
+  border-radius: 0 4px 4px 0;
+  border-left: 0;
+}
+
+.increment-button {
   height: -webkit-fill-available;
   padding: 0.5em 1em;
   transform: scale(1.1);
 }
 
-.input-component-inner .prepend-part {
-  border-radius: 4px 0 0 4px;
-  border-right: 0;
-}
-
-.input-component-inner .append-part {
-  border-radius: 0 4px 4px 0;
-  border-left: 0;
-}
-
 /* INPUT-INNER */
-.input-component-inner .input-inner,
-.input-component-inner .input-inner input,
-.input-component-inner .input-inner svg {
+.input-component__input-inner,
+.input-component__input-inner input,
+.input-component__input-inner svg {
   transition: 0.15s linear;
 }
 
-.input-component-inner .input-inner {
+.input-component__input-inner {
   display: flex;
   align-items: center;
 
@@ -300,27 +311,30 @@ export default defineComponent({
   border-radius: 4px;
 }
 
-.input-component-inner .input-inner:not(.password, .clearable).reversed {
+.input-component__input-inner_reversed {
   flex-direction: row-reverse;
 }
 
-.input-component-inner .input-inner:not(.disabled):hover {
+.input-component__input-inner:hover {
   border-color: black;
 }
 
-.input-component-inner .input-inner.focus:not(:disabled) {
-  border-color: var(--theme);
-}
-
-.input-component-inner .input-inner.disabled,
-.input-component-inner .input-inner input:disabled {
+.input-component__input-inner_disabled {
   opacity: 0.7;
   cursor: default;
 }
 
-/* INPUT */
+.input-component__input-inner_disabled:hover {
+  border-color: var(--blur);
+}
 
-.input-component-inner .input-inner input {
+.input-component__input-inner_focused,
+.input-component__input-inner_focused:hover {
+  border-color: var(--theme);
+}
+
+/* INPUT */
+.input-component__input-inner__input {
   font-size: 1em;
   appearance: none;
   outline: none;
@@ -332,46 +346,49 @@ export default defineComponent({
   caret-color: var(--theme);
 }
 
-.input-component-inner .input-inner input::selection {
+.input-component__input-inner__input::selection {
   color: var(--textColor);
   background-color: var(--theme);
 }
 
 /* ICON */
 
-.input-component-inner .input-inner svg {
+.input-component__input-inner__icon {
   color: var(--blur);
   transform: scale(1.25);
 }
 
-.input-component-inner .input-inner.clearable svg,
-.input-component-inner .input-inner.password svg {
+.input-component__input-inner_clearable .input-component__input-inner__icon,
+.input-component__input-inner_type_password
+  .input-component__input-inner__icon {
   cursor: pointer;
 }
 
-.input-component-inner .input-inner:not(.password).clearable.empty svg {
+.input-component__input-inner_clearable.input-component__input-inner_empty
+  .input-component__input-inner__icon {
   opacity: 0;
 }
 
-.input-component-inner .input-inner:not(.password, .clearable).reversed svg,
-.input-component-inner .input-inner:not(.password, .clearable).reversed span {
+.input-component__input-inner_reversed .input-component__input-inner__icon,
+.input-component__input-inner_reversed span {
   margin-left: 0.5em;
   margin-right: 0;
 }
 
-.input-component-inner .input-inner svg,
-.input-component-inner .input-inner span {
+.input-component__input-inner__icon,
+.input-component__input-inner span {
   margin-right: 0.5em;
 }
 
-.input-component-inner .input-inner:not(.disabled).clearable svg:hover,
-.input-component-inner .input-inner:not(.disabled, .clearable):hover svg {
+.input-component__input-inner:hover,
+.input-component__input-inner_type_password
+  .input-component__input-inner__icon:hover,
+.input-component__input-inner_clearable
+  .input-component__input-inner__icon:hover {
   color: black;
 }
 
-.input-component-inner
-  .input-inner.focus:not(.disabled, .clearable:not(.password))
-  svg {
+.input-component__input-inner_focused .input-component__input-inner__icon {
   color: var(--theme);
 }
 </style>

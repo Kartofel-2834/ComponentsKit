@@ -1,15 +1,28 @@
 <template>
   <a
-    :class="{ disabled, [`line-${underline}`]: true }"
+    :class="{
+      link: true,
+      link_disabled: disabled,
+      [`link_line_${underline}`]: true,
+    }"
     :style="{
       '--colorTheme': `var(--${type})`,
       '--colorThemeFaded': `var(--${type}Faded)`,
     }"
     @click="linkClickListener"
   >
-    <p :class="{ reversed: rightIcon }">
+    <p
+      :class="{
+        'link__content-inner': true,
+        'link__content-inner_reversed': rightIcon,
+      }"
+    >
       <Icon v-if="!!icon.length" :icon="icon" />
-      <span :class="{ 'link-content': !!icon.length && !!$slots.default }">
+      <span
+        :class="{
+          'link__content-inner__content': !!icon.length && !!$slots.default,
+        }"
+      >
         <slot></slot>
       </span>
     </p>
@@ -42,7 +55,7 @@ export default defineComponent({
 </script>
 
 <style>
-a {
+.link {
   font-size: 1em;
 
   appearance: none;
@@ -56,11 +69,11 @@ a {
   color: var(--colorTheme);
 }
 
-a.disabled {
+.link_disabled {
   opacity: 0.6;
 }
 
-a::after {
+.link::after {
   content: "";
   width: 100%;
   height: 1px;
@@ -71,27 +84,27 @@ a::after {
   transition: 0.1s linear;
 }
 
-a:not(a.disabled):hover::after {
+.link:hover:not(.link_disabled)::after {
   transform: scaleX(1);
 }
 
-a.line-left::after {
+.link_line_left::after {
   transform-origin: left;
 }
 
-a.line-center::after {
+.link_line_center::after {
   transform-origin: center;
 }
 
-a.line-right::after {
+.link_line_right::after {
   transform-origin: right;
 }
 
-a.line-none::after {
+.link_line_none::after {
   display: none;
 }
 
-a p {
+.link__content-inner_reversed {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,15 +114,15 @@ a p {
   transition: 0.1s linear;
 }
 
-a p.reversed {
+.link__content-inner_reversed {
   flex-direction: row-reverse;
 }
 
-a:not(a.disabled):hover p {
+.link:hover:not(.link_disabled) p {
   opacity: 0.85;
 }
 
-a p span.link-content {
+.link__content-inner__content {
   margin-left: 0.5em;
   margin-right: 0.5em;
   margin-top: 0.1em;

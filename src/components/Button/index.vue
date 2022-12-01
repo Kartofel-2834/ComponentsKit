@@ -2,9 +2,9 @@
   <button
     :disabled="disabled"
     :class="{
-      rounded,
-      faded,
-      reversed: leftIcon,
+      button_rounded: rounded,
+      button_faded: faded,
+      button_reversed: leftIcon,
     }"
     :style="{
       '--colorTheme': `var(--${type})`,
@@ -63,11 +63,11 @@ button {
   transition: 0.15s ease-out;
 }
 
-button.reversed {
+.button_reversed {
   flex-direction: row-reverse;
 }
 
-button.faded:not(button.faded:hover) {
+.button_faded:not(.button_faded:hover) {
   color: var(--colorTheme);
   background-color: var(--colorThemeFaded);
 }
@@ -76,19 +76,19 @@ button svg {
   transform: scale(1.35);
 }
 
-button:not(.reversed) span.button-content {
+button:not(.button_reversed) .button-content {
   margin-right: 0.5em;
 }
 
-button.reversed span.button-content {
+.button_reversed .button-content {
   margin-left: 0.5em;
 }
 
-button.rounded {
+.button_rounded {
   border-radius: 2em;
 }
 
-button:not(button.faded):hover:not(button:active) {
+button:not(.button_faded, :active):hover {
   opacity: 0.85;
 }
 

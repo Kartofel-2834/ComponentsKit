@@ -1,20 +1,21 @@
 <template>
   <div
     class="radio-list"
-    :class="{ 'radio-buttons-list': buttons }"
+    :class="{ 'radio-list_type_button': buttons }"
     :style="{ '--color': `var(--${theme})` }"
   >
     <div
       v-for="option in options"
       :key="option[field] || String(option)"
-      class="radio-element"
+      class="radio-list__option"
       :class="{
-        active: (option[field] || String(option)) === value,
-        disabled: !!option?.disabled,
+        'radio-list__option_active':
+          !option?.disabled && (option[field] || String(option)) === value,
+        'radio-list__option_disabled': !!option?.disabled,
       }"
       @click="() => select(option[field], option)"
     >
-      <div class="radio-bubble"><div></div></div>
+      <div class="radio-list__option__bubble"><div></div></div>
 
       <slot :value="option[field] || String(option)" :option="option"></slot>
       <span v-if="!$slots.default">{{ option[label] || String(option) }}</span>
@@ -65,22 +66,22 @@ export default defineComponent({
   gap: 1em;
 }
 
-.radio-list .radio-element {
+.radio-list__option {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.radio-list .radio-element.disabled {
+.radio-list__option_disabled {
   opacity: 0.7;
   cursor: default;
 }
 
-.radio-list .radio-element.active::before {
+.radio-list__option_active::before {
   background-color: var(--color);
 }
 
-.radio-list .radio-element .radio-bubble {
+.radio-list__option__bubble {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -97,56 +98,69 @@ export default defineComponent({
   transition: 0.15s linear;
 }
 
-.radio-list .radio-element .radio-bubble div {
+.radio-list__option__bubble div {
   width: 0.5em;
   height: 0.5em;
   background-color: white;
   border-radius: 100%;
 }
 
-.radio-list .radio-element:not(.disabled):hover .radio-bubble {
+.radio-list__option:hover .radio-list__option__bubble {
   border-color: var(--color);
 }
 
-.radio-list .radio-element.active .radio-bubble {
+.radio-list__option_disabled:hover .radio-list__option__bubble {
+  border-color: var(--blur);
+}
+
+.radio-list__option_active .radio-list__option__bubble {
   background-color: var(--color);
   border-color: var(--color);
 }
 
 /* Buttons radio-list styles */
 
-.radio-list.radio-buttons-list {
+.radio-list_type_button {
   grid-auto-flow: column;
   gap: 0;
 }
 
-.radio-list.radio-buttons-list .radio-element {
+.radio-list_type_button .radio-list__option {
   padding: 0.5em 1em;
   border: 1px solid var(--blur);
   border-left: none;
   transition: 0.15s linear;
 }
 
-.radio-list.radio-buttons-list .radio-element.active {
+.radio-list_type_button .radio-list__option_active {
   background-color: var(--color);
   border-color: var(--color);
   color: white;
 }
 
-.radio-list.radio-buttons-list .radio-element:first-child {
+.radio-list_type_button .radio-list__option:only-child {
+  border: 1px solid var(--blur);
+  border-radius: 4px;
+}
+
+.radio-list_type_button .radio-list__option:not(:only-child):first-child {
   border-left: 1px solid var(--blur);
   border-radius: 4px 0 0 4px;
 }
 
-.radio-list.radio-buttons-list .radio-element:last-child {
+.radio-list_type_button .radio-list__option:not(:only-child):last-child {
   border-radius: 0 4px 4px 0;
 }
 
-.radio-list.radio-buttons-list .radio-element:not(.disabled, .active):hover {
+.radio-list_type_button
+  .radio-list__option:not(
+    .radio-list__option_disabled,
+    .radio-list__option_active
+  ):hover {
   color: var(--color);
 }
 
-.radio-list.radio-buttons-list .radio-element .radio-bubble {
+.radio-list_type_button .radio-list__option__bubble {
   display: none;
 }
 </style>

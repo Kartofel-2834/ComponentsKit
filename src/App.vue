@@ -1,82 +1,10 @@
 <template>
-  <Button type="danger" icon="tabler:brand-amongus" left-icon faded rounded>
-    Imposter
-  </Button>
-
-  <br />
-
-  <Link
-    href="https://images-prod.healthline.com/hlcmsresource/images/AN_images/tomatoes-1296x728-feature.jpg"
-    target="_blank"
-    icon="icon-park-solid:tomato"
-    type="danger"
-  >
-    Tomato
-  </Link>
-
-  <br />
-
-  <RadioList
-    buttons
-    :value="kamal"
-    :options="['tazhu', 'kamal', 'ilmu', 'radjab', 'kurban']"
-    theme="success"
-    @change="(v) => (kamal = v)"
-  />
-
-  <br />
-
-  <div>
-    <Checkbox button theme="warning" v-model="isAllFruits">
-      Выбрать все
-    </Checkbox>
-  </div>
-
-  <br />
-
-  <CheckList
-    :selected="fruits"
-    :options="['Яблоко', 'Апельсин', 'Банан', 'Ананас', 'Гранат']"
-    :test="(fruit: string) => isAllFruits || fruits.includes(fruit)"
-    :disabled="() => isAllFruits"
-    theme="warning"
-    @change="fruitsSelectToggle"
-  />
-
-  <br />
-
-  <div style="width: 30vw">
-    <Input
-      v-model="kamal"
-      icon="fluent-emoji-high-contrast:cucumber"
-      placeholder="Что-нибудь..."
-    />
+  <div style="width: 50%; margin: 0 auto">
+    <Input v-model="kamal" type="password" />
 
     <br />
 
-    <Input v-model="kamal" :limit="10" />
-
-    <br />
-
-    <Input v-model="kamal" clearable theme="success" placeholder="Очищаемый">
-      <template #prepend>
-        <span style="white-space: nowrap">Type something here -></span>
-      </template>
-
-      <template #append>
-        <Button type="success" icon="material-symbols:search" rounded faded />
-      </template>
-    </Input>
-
-    <br />
-
-    <Input
-      v-model="kamal"
-      type="number"
-      theme="info"
-      icon="mdi:number-5-circle"
-      :step="2"
-    />
+    <Select />
   </div>
 </template>
 
@@ -84,12 +12,13 @@
 import { defineComponent } from "vue";
 
 // Components
-import Button from "@/components/Button/index.vue";
-import Link from "@/components/Link/index.vue";
-import RadioList from "@/components/RadioList/index.vue";
-import Checkbox from "@/components/Checkbox/index.vue";
-import CheckList from "@/components/Checkbox/list.vue";
+// import Button from "@/components/Button/index.vue";
+// import Link from "@/components/Link/index.vue";
+// import RadioList from "@/components/RadioList/index.vue";
+// import Checkbox from "@/components/Checkbox/index.vue";
+// import CheckList from "@/components/Checkbox/list.vue";
 import Input from "@/components/Input/index.vue";
+import Select from "@/components/Select/index.vue";
 
 interface MainPage {
   kamal: any;
@@ -100,12 +29,8 @@ interface MainPage {
 export default defineComponent({
   name: "App",
   components: {
-    Button,
-    Link,
-    RadioList,
-    Checkbox,
-    CheckList,
     Input,
+    Select,
   },
 
   data(): MainPage {

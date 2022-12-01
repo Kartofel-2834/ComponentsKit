@@ -1,5 +1,5 @@
 <template>
-  <div class="check-list" :class="{ 'check-buttons-list': buttons }">
+  <div class="check-list" :class="{ 'check-list_type_buttons': buttons }">
     <Checkbox
       v-for="option in options"
       :key="option || option[field]"
@@ -68,7 +68,7 @@ export default defineComponent({
   gap: 1em;
 }
 
-.check-list.check-buttons-list {
+.check-list_type_buttons {
   grid-auto-flow: column;
   gap: 0;
 }
